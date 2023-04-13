@@ -16,7 +16,7 @@
               <input placeholder="buscar pokemon" v-model="buscar" class="h-11" type="text" />
             </form>
           </div>
-          <div class="flex flex-wrap gap-10">
+          <div class="flex justify-center flex-wrap my-6 gap-10">
             <target v-for="(item, index) in response" :key="index" :nombre="item.name" :imagen="item.imagen" />
           </div>
         </div>
@@ -41,7 +41,6 @@ export default {
     async getInfo() {
       try {
         const { data } = await this.$axios.get("pokemon");
-        console.log(data);
         for (let index = 0; index < data.results.length; index++) {
           const imagen = await this.getImg(data.results[index].name);
           data.results[index].imagen = imagen;
