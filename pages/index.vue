@@ -1,72 +1,78 @@
 <template>
-  <div>
-    <header class="flex justify-center m-4">
-      <div
-        class="flex justify-center items-center h-[10vh] w-[90vw] rounded-lg bg-gray-200"
-      >
-        <h1 class="text-6xl font-medium">Poke Dex</h1>
-      </div>
-    </header>
-    <main class="flex justify-center">
-      <div class="flex w-[98vw] flex-col">
-        <div class="flex">
-          <input placeholder="buscar pokemon" class="h-11" type="text" />
-        </div>
-        <div class="flex flex-wrap gap-10">
-          <target
-            v-for="(item, index) in response"
-            :key="index"
-            :nombre="item.name"
-            :imagen="item.imagen"
-          />
+  <div id="body">
+    <loading v-if="loading" />
+    <div v-else>
+      <header>
+        <div class="flex justify-center ">
+        <div class="flex justify-center m-4 items-center h-[10vh] w-[90vw] rounded-lg bg-gray-200">
+          <h1 class="text-6xl font-medium">Poke Dex</h1>
         </div>
       </div>
-    </main>
+      </header>
+      <main class="flex justify-center">
+        <div class="flex w-[98vw] flex-col">
+          <div class="flex">
+            <form action="" @submit.prevent="busqueda" class="my-6 m">
+              <input placeholder="buscar pokemon" v-model="buscar" class="h-11" type="text" />
+            </form>
+          </div>
+          <div class="flex flex-wrap gap-10">
+            <target v-for="(item, index) in response" :key="index" :nombre="item.name" :imagen="item.imagen" />
+          </div>
+        </div>
+      </main>
+    </div>
   </div>
 </template>
 
 <script>
+
 export default {
   name: "IndexPage",
   data() {
     return {
       response: [],
       imagenes: [],
+      buscar: '',
+      loading: true
     };
   },
   methods: {
     async getInfo() {
-      const { data } = await this.$axios.get("pokemon");
-      this.response = data.results;
+      try {
+        const { data } = await this.$axios.get("pokemon");
+        console.log(data);
+        for (let index = 0; index < data.results.length; index++) {
+          const imagen = await this.getImg(data.results[index].name);
+          data.results[index].imagen = imagen;
+        }
+        this.response = data.results;
+        this.loading = false
 
-      console.log(data);
-      for (let index = 0; index < this.response.length; index++) {
-        const element = this.response[index];
-        const imagen = await this.getImg(element.name);
-        this.imagenes.push(imagen);
-        this.response[index].imagen = this.imagenes[index];
+      } catch (error) {
+
       }
-      for (let index = 0; index < this.response.length; index++) {
-        this.response[index].imagen = this.imagenes[index];
-      }
-      // for (const name of this.response) {
-      //   const imagen = await this.getImg(name.name)
-      //   // name.imagen = imagen
-      //   this.response.imagen=imagen
-      //   console.log(name);
-      //   console.log(imagen)
-      // }
+
     },
     async getImg(i) {
       const { data } = await this.$axios.get(`pokemon/${i}/`);
       return data.sprites.front_default;
     },
+    async busqueda() {
+      this.$router.push(this.buscar)
+    }
   },
   async mounted() {
     await this.getInfo();
-    console.log(this.response);
+    this.busqueda()
   },
 };
 </script>
 
-<style></style>
+<style>
+#body {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' version='1.1' xmlns:xlink='http://www.w3.org/1999/xlink' xmlns:svgjs='http://svgjs.com/svgjs' width='1440' height='568' preserveAspectRatio='none' viewBox='0 0 1440 568'%3e%3cg mask='url(%26quot%3b%23SvgjsMask1299%26quot%3b)' fill='none'%3e%3crect width='1440' height='568' x='0' y='0' fill='url(%23SvgjsLinearGradient1300)'%3e%3c/rect%3e%3cpath d='M8.03 565.14L95.5 615.64L95.5 716.64L8.03 767.14L-79.44 716.64L-79.44 615.64zM270.44 110.64L357.91 161.14L357.91 262.14L270.44 312.64L182.97 262.14L182.97 161.14zM445.39 413.64L532.86 464.14L532.86 565.14L445.39 615.64L357.91 565.14L357.91 464.14zM620.33 110.64L707.8 161.14L707.8 262.14L620.33 312.64L532.86 262.14L532.86 161.14zM532.86 262.14L620.33 312.64L620.33 413.64L532.86 464.14L445.39 413.64L445.39 312.64zM795.27 110.64L882.74 161.14L882.74 262.14L795.27 312.64L707.8 262.14L707.8 161.14zM707.8 262.14L795.27 312.64L795.27 413.64L707.8 464.14L620.33 413.64L620.33 312.64zM795.27 413.64L882.74 464.14L882.74 565.14L795.27 615.64L707.8 565.14L707.8 464.14zM882.74 565.14L970.21 615.64L970.21 716.64L882.74 767.14L795.27 716.64L795.27 615.64zM1057.68 -40.86L1145.15 9.64L1145.15 110.64L1057.68 161.14L970.21 110.64L970.21 9.64zM1145.15 110.64L1232.62 161.14L1232.62 262.14L1145.15 312.64L1057.68 262.14L1057.68 161.14zM1407.57 262.14L1495.04 312.64L1495.04 413.64L1407.57 464.14L1320.1 413.64L1320.1 312.64zM1495.04 413.64L1582.51 464.14L1582.51 565.14L1495.04 615.64L1407.57 565.14L1407.57 464.14z' stroke='%2303305d' stroke-width='2'%3e%3c/path%3e%3cpath d='M-2.07 565.14 a10.1 10.1 0 1 0 20.2 0 a10.1 10.1 0 1 0 -20.2 0zM85.4 615.64 a10.1 10.1 0 1 0 20.2 0 a10.1 10.1 0 1 0 -20.2 0zM85.4 716.64 a10.1 10.1 0 1 0 20.2 0 a10.1 10.1 0 1 0 -20.2 0zM-2.07 767.14 a10.1 10.1 0 1 0 20.2 0 a10.1 10.1 0 1 0 -20.2 0zM-89.54 716.64 a10.1 10.1 0 1 0 20.2 0 a10.1 10.1 0 1 0 -20.2 0zM-89.54 615.64 a10.1 10.1 0 1 0 20.2 0 a10.1 10.1 0 1 0 -20.2 0zM260.34 110.64 a10.1 10.1 0 1 0 20.2 0 a10.1 10.1 0 1 0 -20.2 0zM347.81 161.14 a10.1 10.1 0 1 0 20.2 0 a10.1 10.1 0 1 0 -20.2 0zM347.81 262.14 a10.1 10.1 0 1 0 20.2 0 a10.1 10.1 0 1 0 -20.2 0zM260.34 312.64 a10.1 10.1 0 1 0 20.2 0 a10.1 10.1 0 1 0 -20.2 0zM172.87 262.14 a10.1 10.1 0 1 0 20.2 0 a10.1 10.1 0 1 0 -20.2 0zM172.87 161.14 a10.1 10.1 0 1 0 20.2 0 a10.1 10.1 0 1 0 -20.2 0zM435.29 413.64 a10.1 10.1 0 1 0 20.2 0 a10.1 10.1 0 1 0 -20.2 0zM522.76 464.14 a10.1 10.1 0 1 0 20.2 0 a10.1 10.1 0 1 0 -20.2 0zM522.76 565.14 a10.1 10.1 0 1 0 20.2 0 a10.1 10.1 0 1 0 -20.2 0zM435.29 615.64 a10.1 10.1 0 1 0 20.2 0 a10.1 10.1 0 1 0 -20.2 0zM347.81 565.14 a10.1 10.1 0 1 0 20.2 0 a10.1 10.1 0 1 0 -20.2 0zM347.81 464.14 a10.1 10.1 0 1 0 20.2 0 a10.1 10.1 0 1 0 -20.2 0zM610.23 110.64 a10.1 10.1 0 1 0 20.2 0 a10.1 10.1 0 1 0 -20.2 0zM697.7 161.14 a10.1 10.1 0 1 0 20.2 0 a10.1 10.1 0 1 0 -20.2 0zM697.7 262.14 a10.1 10.1 0 1 0 20.2 0 a10.1 10.1 0 1 0 -20.2 0zM610.23 312.64 a10.1 10.1 0 1 0 20.2 0 a10.1 10.1 0 1 0 -20.2 0zM522.76 262.14 a10.1 10.1 0 1 0 20.2 0 a10.1 10.1 0 1 0 -20.2 0zM522.76 161.14 a10.1 10.1 0 1 0 20.2 0 a10.1 10.1 0 1 0 -20.2 0zM610.23 413.64 a10.1 10.1 0 1 0 20.2 0 a10.1 10.1 0 1 0 -20.2 0zM435.29 312.64 a10.1 10.1 0 1 0 20.2 0 a10.1 10.1 0 1 0 -20.2 0zM785.17 110.64 a10.1 10.1 0 1 0 20.2 0 a10.1 10.1 0 1 0 -20.2 0zM872.64 161.14 a10.1 10.1 0 1 0 20.2 0 a10.1 10.1 0 1 0 -20.2 0zM872.64 262.14 a10.1 10.1 0 1 0 20.2 0 a10.1 10.1 0 1 0 -20.2 0zM785.17 312.64 a10.1 10.1 0 1 0 20.2 0 a10.1 10.1 0 1 0 -20.2 0zM785.17 413.64 a10.1 10.1 0 1 0 20.2 0 a10.1 10.1 0 1 0 -20.2 0zM697.7 464.14 a10.1 10.1 0 1 0 20.2 0 a10.1 10.1 0 1 0 -20.2 0zM872.64 464.14 a10.1 10.1 0 1 0 20.2 0 a10.1 10.1 0 1 0 -20.2 0zM872.64 565.14 a10.1 10.1 0 1 0 20.2 0 a10.1 10.1 0 1 0 -20.2 0zM785.17 615.64 a10.1 10.1 0 1 0 20.2 0 a10.1 10.1 0 1 0 -20.2 0zM697.7 565.14 a10.1 10.1 0 1 0 20.2 0 a10.1 10.1 0 1 0 -20.2 0zM960.11 615.64 a10.1 10.1 0 1 0 20.2 0 a10.1 10.1 0 1 0 -20.2 0zM960.11 716.64 a10.1 10.1 0 1 0 20.2 0 a10.1 10.1 0 1 0 -20.2 0zM872.64 767.14 a10.1 10.1 0 1 0 20.2 0 a10.1 10.1 0 1 0 -20.2 0zM785.17 716.64 a10.1 10.1 0 1 0 20.2 0 a10.1 10.1 0 1 0 -20.2 0zM1047.58 -40.86 a10.1 10.1 0 1 0 20.2 0 a10.1 10.1 0 1 0 -20.2 0zM1135.05 9.64 a10.1 10.1 0 1 0 20.2 0 a10.1 10.1 0 1 0 -20.2 0zM1135.05 110.64 a10.1 10.1 0 1 0 20.2 0 a10.1 10.1 0 1 0 -20.2 0zM1047.58 161.14 a10.1 10.1 0 1 0 20.2 0 a10.1 10.1 0 1 0 -20.2 0zM960.11 110.64 a10.1 10.1 0 1 0 20.2 0 a10.1 10.1 0 1 0 -20.2 0zM960.11 9.64 a10.1 10.1 0 1 0 20.2 0 a10.1 10.1 0 1 0 -20.2 0zM1222.52 161.14 a10.1 10.1 0 1 0 20.2 0 a10.1 10.1 0 1 0 -20.2 0zM1222.52 262.14 a10.1 10.1 0 1 0 20.2 0 a10.1 10.1 0 1 0 -20.2 0zM1135.05 312.64 a10.1 10.1 0 1 0 20.2 0 a10.1 10.1 0 1 0 -20.2 0zM1047.58 262.14 a10.1 10.1 0 1 0 20.2 0 a10.1 10.1 0 1 0 -20.2 0zM1397.47 262.14 a10.1 10.1 0 1 0 20.2 0 a10.1 10.1 0 1 0 -20.2 0zM1484.94 312.64 a10.1 10.1 0 1 0 20.2 0 a10.1 10.1 0 1 0 -20.2 0zM1484.94 413.64 a10.1 10.1 0 1 0 20.2 0 a10.1 10.1 0 1 0 -20.2 0zM1397.47 464.14 a10.1 10.1 0 1 0 20.2 0 a10.1 10.1 0 1 0 -20.2 0zM1310 413.64 a10.1 10.1 0 1 0 20.2 0 a10.1 10.1 0 1 0 -20.2 0zM1310 312.64 a10.1 10.1 0 1 0 20.2 0 a10.1 10.1 0 1 0 -20.2 0zM1572.41 464.14 a10.1 10.1 0 1 0 20.2 0 a10.1 10.1 0 1 0 -20.2 0zM1572.41 565.14 a10.1 10.1 0 1 0 20.2 0 a10.1 10.1 0 1 0 -20.2 0zM1484.94 615.64 a10.1 10.1 0 1 0 20.2 0 a10.1 10.1 0 1 0 -20.2 0zM1397.47 565.14 a10.1 10.1 0 1 0 20.2 0 a10.1 10.1 0 1 0 -20.2 0z' fill='%2303305d'%3e%3c/path%3e%3cpath d='M91.92 109.33L135.22 134.33L135.22 184.33L91.92 209.33L48.61 184.33L48.61 134.33zM178.52 109.33L221.82 134.33L221.82 184.33L178.52 209.33L135.22 184.33L135.22 134.33zM221.82 184.33L265.13 209.33L265.13 259.33L221.82 284.33L178.52 259.33L178.52 209.33zM308.43 34.33L351.73 59.33L351.73 109.33L308.43 134.33L265.13 109.33L265.13 59.33zM265.13 259.33L308.43 284.33L308.43 334.33L265.13 359.33L221.82 334.33L221.82 284.33zM308.43 334.33L351.73 359.33L351.73 409.33L308.43 434.33L265.13 409.33L265.13 359.33zM395.03 484.33L438.34 509.33L438.34 559.33L395.03 584.33L351.73 559.33L351.73 509.33zM481.64 334.33L524.94 359.33L524.94 409.33L481.64 434.33L438.34 409.33L438.34 359.33zM568.24 34.33L611.54 59.33L611.54 109.33L568.24 134.33L524.94 109.33L524.94 59.33zM524.94 109.33L568.24 134.33L568.24 184.33L524.94 209.33L481.64 184.33L481.64 134.33zM524.94 259.33L568.24 284.33L568.24 334.33L524.94 359.33L481.64 334.33L481.64 284.33zM568.24 334.33L611.54 359.33L611.54 409.33L568.24 434.33L524.94 409.33L524.94 359.33zM654.85 34.33L698.15 59.33L698.15 109.33L654.85 134.33L611.54 109.33L611.54 59.33zM654.85 334.33L698.15 359.33L698.15 409.33L654.85 434.33L611.54 409.33L611.54 359.33zM698.15 -40.67L741.45 -15.67L741.45 34.33L698.15 59.33L654.85 34.33L654.85 -15.67zM698.15 559.33L741.45 584.33L741.45 634.33L698.15 659.33L654.85 634.33L654.85 584.33zM914.66 184.33L957.97 209.33L957.97 259.33L914.66 284.33L871.36 259.33L871.36 209.33zM914.66 484.33L957.97 509.33L957.97 559.33L914.66 584.33L871.36 559.33L871.36 509.33zM1001.27 484.33L1044.57 509.33L1044.57 559.33L1001.27 584.33L957.97 559.33L957.97 509.33zM1087.87 484.33L1131.17 509.33L1131.17 559.33L1087.87 584.33L1044.57 559.33L1044.57 509.33zM1261.08 484.33L1304.38 509.33L1304.38 559.33L1261.08 584.33L1217.78 559.33L1217.78 509.33zM1304.38 259.33L1347.69 284.33L1347.69 334.33L1304.38 359.33L1261.08 334.33L1261.08 284.33zM1390.99 409.33L1434.29 434.33L1434.29 484.33L1390.99 509.33L1347.69 484.33L1347.69 434.33zM1390.99 559.33L1434.29 584.33L1434.29 634.33L1390.99 659.33L1347.69 634.33L1347.69 584.33z' stroke='rgba(6%2c 80%2c 156%2c 0.93)' stroke-width='2'%3e%3c/path%3e%3c/g%3e%3cdefs%3e%3cmask id='SvgjsMask1299'%3e%3crect width='1440' height='568' fill='white'%3e%3c/rect%3e%3c/mask%3e%3clinearGradient x1='15.14%25' y1='138.38%25' x2='84.86%25' y2='-38.38%25' gradientUnits='userSpaceOnUse' id='SvgjsLinearGradient1300'%3e%3cstop stop-color='%230e2a47' offset='0'%3e%3c/stop%3e%3cstop stop-color='%2300459e' offset='1'%3e%3c/stop%3e%3c/linearGradient%3e%3c/defs%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+</style>
