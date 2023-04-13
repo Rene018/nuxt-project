@@ -20,7 +20,7 @@ export default {
             required: true
         },
         imagen: {
-            type: String,
+
             required: true
         }
 
