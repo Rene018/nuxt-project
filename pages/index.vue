@@ -4,15 +4,15 @@
     <div v-else>
       <header>
         <div class="flex justify-center ">
-        <div class="flex justify-center m-4 items-center h-[10vh] w-[90vw] rounded-lg bg-gray-200">
-          <h1 class="text-6xl font-medium">Poke Dex</h1>
+          <div class="flex justify-center m-4 items-center h-[10vh] w-[90vw] rounded-lg bg-gray-200">
+            <h1 class="text-6xl font-medium">Poke Dex</h1>
+          </div>
         </div>
-      </div>
       </header>
       <main class="flex justify-center">
         <div class="flex w-[98vw] flex-col">
           <div class="flex">
-            <form action="" @submit.prevent="busqueda" class="my-6 m">
+            <form action="" @submit.prevent="busqueda" class="my-6 mx-10">
               <input placeholder="buscar pokemon" v-model="buscar" class="h-11" type="text" />
             </form>
           </div>
@@ -34,22 +34,45 @@ export default {
       response: [],
       imagenes: [],
       buscar: '',
-      loading: true
+      loading: true,
+      siguiente: "",
+      anterior: null
     };
   },
   methods: {
     async getInfo() {
       try {
-        const { data } = await this.$axios.get("pokemon");
-        for (let index = 0; index < data.results.length; index++) {
-          const imagen = await this.getImg(data.results[index].name);
-          data.results[index].imagen = imagen;
+
+        if (this.anterior == null) {
+          const { data } = await this.$axios.get("pokemon");
+          this.siguiente = data.next
+          this.anterior = data.previous
+          console.log(this.siguiente);
+          console.log(this.anterior);
+          for (let index = 0; index < data.results.length; index++) {
+            const imagen = await this.getImg(data.results[index].name);
+            data.results[index].imagen = imagen;
+          }
+          this.response = data.results;
+          this.loading = false
+        } else {
+          const { data } = await this.$axios.get(`${this.siguiente}`);
+          this.siguiente = data.next
+          this.anterior = data.previous
+          console.log(this.siguiente);
+          console.log(this.anterior);
+          for (let index = 0; index < data.results.length; index++) {
+            const imagen = await this.getImg(data.results[index].name);
+            data.results[index].imagen = imagen;
+          }
+          this.response = data.results;
+          this.loading = false
         }
-        this.response = data.results;
-        this.loading = false
+
+
+
 
       } catch (error) {
-
       }
 
     },
